@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Emotional AAC"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Status"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvOverlayStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Checking..."
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvAccessibilityStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Checking..."
+        android:textSize="16sp" />
+    <!-- Add inside LinearLayout, maybe above btnOpenAccessibility -->
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchTTS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enable Text-to-Speech (Voice)"
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnOpenAccessibility"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Open Accessibility Settings"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/btnTestMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Test Radial Menu"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.7"
+        android:gravity="center"
+        android:text="Usage:\nTap the accessibility button\nto select an emotion"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="--- DEBUG LOG ---"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#EEEEEE"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/debugLogView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="Waiting for signal..."
+            android:textSize="12sp" />
+    </ScrollView>
+
+</LinearLayout>
