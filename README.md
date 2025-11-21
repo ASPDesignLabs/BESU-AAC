@@ -134,9 +134,13 @@ Step 2: Communicate
 
 
 Intention	Gesture	Physics Logic
+
 YES / GOOD	The Pump: Raise fist (Thumbs Up), then drop hand.	AccX > 7.0 (Prime) -> AccX < 4.0 (Fire)
+
 NO	The Wiper: Sweep forearm left/right in front of chest.	GyroX oscillation > 3 cycles
+
 HELLO	The Wave: Raise hand high, wave side-to-side.	AccX > 5.0 + GyroZ oscillation
+
 STOP	The Hand: Extend arm forward, palm facing out.	AccY Dominant (Gravity), AccX Weak
 
 ---
