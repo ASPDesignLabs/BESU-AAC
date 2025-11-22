@@ -1,0 +1,382 @@
+{
+  "emotions": [
+    {
+      "id": "happy", "emoji": "😊", "label": "Happy", "phrase": "Happy", "color": "#2196F3",
+      "subItems": [
+        { "id": "excited", "emoji": "🤩", "label": "Excited", "phrase": "Excited", "color": "#2196F3" },
+        { "id": "proud", "emoji": "🦁", "label": "Proud", "phrase": "Proud", "color": "#2196F3" },
+        { "id": "grateful", "emoji": "🙏", "label": "Grateful", "phrase": "Grateful", "color": "#2196F3" },
+        { "id": "funny", "emoji": "😂", "label": "Funny", "phrase": "Funny", "color": "#2196F3" },
+        { "id": "love", "emoji": "❤️", "label": "Love", "phrase": "Love", "color": "#2196F3" },
+        { "id": "good", "emoji": "👍", "label": "Good", "phrase": "Good", "color": "#2196F3" }
+      ]
+    },
+    {
+      "id": "sad", "emoji": "😢", "label": "Sad", "phrase": "Sad", "color": "#2196F3",
+      "subItems": [
+        { "id": "hurt", "emoji": "🤕", "label": "Hurt", "phrase": "Hurt", "color": "#2196F3" },
+        { "id": "grief", "emoji": "🕯️", "label": "Grief", "phrase": "Grieving", "color": "#2196F3" },
+        { "id": "lonely", "emoji": "🥀", "label": "Lonely", "phrase": "Lonely", "color": "#2196F3" },
+        { "id": "sorry", "emoji": "😿", "label": "Sorry", "phrase": "Sorry", "color": "#2196F3" },
+        { "id": "bad", "emoji": "👎", "label": "Bad", "phrase": "Bad", "color": "#2196F3" }
+      ]
+    },
+    {
+      "id": "anxious", "emoji": "😟", "label": "Anxious", "phrase": "Anxious", "color": "#2196F3",
+      "subItems": [
+        { "id": "overwhelmed", "emoji": "😵", "label": "Overwhelmed", "phrase": "Overwhelmed", "color": "#2196F3" },
+        { "id": "scared", "emoji": "😨", "label": "Scared", "phrase": "Scared", "color": "#2196F3" },
+        { "id": "nervous", "emoji": "😬", "label": "Nervous", "phrase": "Nervous", "color": "#2196F3" },
+        { "id": "confused", "emoji": "😕", "label": "Confused", "phrase": "Confused", "color": "#2196F3" }
+      ]
+    },
+    {
+      "id": "sensory", "emoji": "🧠", "label": "Sensory", "phrase": "Sensory", "color": "#2196F3",
+      "subItems": [
+        { "id": "loud", "emoji": "🔊", "label": "Loud", "phrase": "Too Loud", "color": "#2196F3" },
+        { "id": "bright", "emoji": "💡", "label": "Bright", "phrase": "Too Bright", "color": "#2196F3" },
+        { "id": "texture", "emoji": "🌵", "label": "Texture", "phrase": "Bad Texture", "color": "#2196F3" },
+        { "id": "smell", "emoji": "👃", "label": "Smell", "phrase": "Bad Smell", "color": "#2196F3" },
+        { "id": "crowded", "emoji": "👥", "label": "Crowded", "phrase": "Too Crowded", "color": "#2196F3" },
+        { "id": "headphones", "emoji": "🎧", "label": "Headphones", "phrase": "Headphones", "color": "#2196F3" }
+      ]
+    },
+    {
+      "id": "angry", "emoji": "😠", "label": "Angry", "phrase": "Angry", "color": "#2196F3",
+      "subItems": [
+        { "id": "frustrated", "emoji": "😤", "label": "Frustrated", "phrase": "Frustrated", "color": "#2196F3" },
+        { "id": "mad", "emoji": "🤬", "label": "Mad", "phrase": "Mad", "color": "#2196F3" },
+        { "id": "annoyed", "emoji": "🙄", "label": "Annoyed", "phrase": "Annoyed", "color": "#2196F3" },
+        { "id": "unfair", "emoji": "⚖️", "label": "Unfair", "phrase": "Unfair", "color": "#2196F3" }
+      ]
+    },
+    {
+      "id": "energy", "emoji": "🔋", "label": "Energy", "phrase": "Energy", "color": "#2196F3",
+      "subItems": [
+        { "id": "tired", "emoji": "😴", "label": "Tired", "phrase": "Tired", "color": "#2196F3" },
+        { "id": "sick", "emoji": "🤢", "label": "Sick", "phrase": "Sick", "color": "#2196F3" },
+        { "id": "pain", "emoji": "🩹", "label": "Pain", "phrase": "In Pain", "color": "#2196F3" },
+        { "id": "bored", "emoji": "😑", "label": "Bored", "phrase": "Bored", "color": "#2196F3" },
+        { "id": "doctor", "emoji": "🩺", "label": "Doctor", "phrase": "Doctor", "color": "#2196F3" }
+      ]
+    }
+  ],
+  "who": [
+    {
+      "id": "i", "emoji": "🙋", "label": "I", "phrase": "I", "color": "#E91E63",
+      "subItems": [
+        { "id": "im", "emoji": "🧘", "label": "I'm", "phrase": "I'm", "color": "#E91E63" },
+        { "id": "am", "emoji": "🧘", "label": "Am", "phrase": "am", "color": "#E91E63" },
+        { "id": "was", "emoji": "🔙", "label": "Was", "phrase": "was", "color": "#E91E63" },
+        { "id": "will", "emoji": "🔜", "label": "Will", "phrase": "will", "color": "#E91E63" },
+        { "id": "have", "emoji": "🤲", "label": "Have", "phrase": "have", "color": "#E91E63" },
+        { "id": "need", "emoji": "🆘", "label": "Need", "phrase": "need", "color": "#E91E63" }
+      ]
+    },
+    { "id": "my", "emoji": "🎒", "label": "My", "phrase": "My", "color": "#E91E63",
+      "subItems": [
+        { "id": "mine", "emoji": "🔒", "label": "Mine", "phrase": "mine", "color": "#E91E63" }
+      ]
+    },
+    { "id": "you", "emoji": "🫵", "label": "You", "phrase": "You", "color": "#E91E63",
+      "subItems": [
+        { "id": "youre", "emoji": "🫵", "label": "You're", "phrase": "you're", "color": "#E91E63" },
+        { "id": "are", "emoji": "👉", "label": "Are", "phrase": "are", "color": "#E91E63" },
+        { "id": "your", "emoji": "🎒", "label": "Your", "phrase": "your", "color": "#E91E63" }
+      ]
+    },
+    { "id": "he", "emoji": "👨", "label": "He", "phrase": "He", "color": "#E91E63",
+      "subItems": [
+        { "id": "hes", "emoji": "👨", "label": "He's", "phrase": "he's", "color": "#E91E63" },
+        { "id": "is_he", "emoji": "👉", "label": "Is", "phrase": "is", "color": "#E91E63" },
+        { "id": "was_he", "emoji": "🔙", "label": "Was", "phrase": "was", "color": "#E91E63" },
+        { "id": "his", "emoji": "🎒", "label": "His", "phrase": "his", "color": "#E91E63" }
+      ]
+    },
+    { "id": "she", "emoji": "👩", "label": "She", "phrase": "She", "color": "#E91E63",
+      "subItems": [
+        { "id": "shes", "emoji": "👩", "label": "She's", "phrase": "she's", "color": "#E91E63" },
+        { "id": "is_she", "emoji": "👉", "label": "Is", "phrase": "is", "color": "#E91E63" },
+        { "id": "was_she", "emoji": "🔙", "label": "Was", "phrase": "was", "color": "#E91E63" },
+        { "id": "her", "emoji": "🎒", "label": "Her", "phrase": "her", "color": "#E91E63" }
+      ]
+    },
+    { "id": "we", "emoji": "👥", "label": "We", "phrase": "We", "color": "#E91E63",
+      "subItems": [
+        { "id": "are_we", "emoji": "👉", "label": "Are", "phrase": "are", "color": "#E91E63" },
+        { "id": "were_we", "emoji": "🔙", "label": "Were", "phrase": "were", "color": "#E91E63" },
+        { "id": "our", "emoji": "🏠", "label": "Our", "phrase": "our", "color": "#E91E63" },
+        { "id": "us", "emoji": "🤝", "label": "Us", "phrase": "us", "color": "#E91E63" }
+      ]
+    },
+    { "id": "they", "emoji": "🧑🤝🧑", "label": "They", "phrase": "They", "color": "#E91E63",
+      "subItems": [
+        { "id": "theyre", "emoji": "🧑🤝🧑", "label": "They're", "phrase": "they're", "color": "#E91E63" },
+        { "id": "are_they", "emoji": "👉", "label": "Are", "phrase": "are", "color": "#E91E63" },
+        { "id": "were_they", "emoji": "🔙", "label": "Were", "phrase": "were", "color": "#E91E63" },
+        { "id": "their", "emoji": "🎒", "label": "Their", "phrase": "their", "color": "#E91E63" }
+      ]
+    },
+    { "id": "doctor_who", "emoji": "🩺", "label": "Doctor", "phrase": "Doctor", "color": "#E91E63" },
+    { "id": "cat", "emoji": "🐱", "label": "Cat", "phrase": "cat", "color": "#E91E63" },
+    { "id": "dog", "emoji": "🐶", "label": "Dog", "phrase": "dog", "color": "#E91E63" }
+  ],
+  "where": [
+    { "id": "here", "emoji": "📍", "label": "Here", "phrase": "here", "color": "#4CAF50",
+      "subItems": [
+        { "id": "go_here", "emoji": "🏃📍", "label": "Go Here", "phrase": "go here", "color": "#4CAF50" }
+      ]
+    },
+    { "id": "home", "emoji": "🏠", "label": "Home", "phrase": "home", "color": "#4CAF50",
+      "subItems": [
+        { "id": "go_home", "emoji": "🏃🏠", "label": "Go Home", "phrase": "go home", "color": "#4CAF50" }
+      ]
+    },
+    { "id": "work", "emoji": "💼", "label": "Work", "phrase": "work", "color": "#4CAF50",
+      "subItems": [
+        { "id": "go_to_work", "emoji": "🏃💼", "label": "Go To Work", "phrase": "to go to work", "color": "#4CAF50" }
+      ]
+    },
+    { "id": "car", "emoji": "🚗", "label": "Car", "phrase": "car", "color": "#4CAF50",
+      "subItems": [
+        { "id": "go_to_car", "emoji": "🏃🚗", "label": "Go To Car", "phrase": "go to the car", "color": "#4CAF50" },
+        { "id": "ride", "emoji": "🙋🚗", "label": "Ride", "phrase": "need a ride", "color": "#4CAF50" },
+        { "id": "drive", "emoji": "🏎️", "label": "Drive", "phrase": "drive", "color": "#4CAF50" },
+        { "id": "traffic", "emoji": "🚦", "label": "Traffic", "phrase": "traffic", "color": "#4CAF50" }
+      ]
+    },
+    { "id": "school", "emoji": "🏫", "label": "School", "phrase": "school", "color": "#4CAF50",
+      "subItems": [
+        { "id": "go_to_school", "emoji": "🏃🏫", "label": "Go To School", "phrase": "to go to school", "color": "#4CAF50" }
+      ]
+    },
+    { "id": "outside", "emoji": "🌳", "label": "Outside", "phrase": "outside", "color": "#4CAF50",
+      "subItems": [
+        { "id": "go_outside", "emoji": "🏃🌳", "label": "Go Outside", "phrase": "go outside", "color": "#4CAF50" }
+      ]
+    },
+    { "id": "room", "emoji": "🚪", "label": "Room", "phrase": "room", "color": "#4CAF50" },
+    { "id": "doctor_where", "emoji": "🏥", "label": "Clinic", "phrase": "doctor's office", "color": "#4CAF50" }
+  ],
+  "what": [
+    {
+      "id": "want",
+      "emoji": "🤲",
+      "label": "Want",
+      "phrase": "want",
+      "color": "#FF9800",
+      "subItems": [
+        { "id": "wants", "emoji": "🤲", "label": "Wants", "phrase": "wants", "color": "#FF9800" },
+        { "id": "to_want", "emoji": "➡🤲", "label": "To Want", "phrase": "to want", "color": "#FF9800" },
+        { "id": "wanted", "emoji": "🔙", "label": "Wanted", "phrase": "wanted", "color": "#FF9800" }
+      ]
+    },
+    { "id": "go", "emoji": "🚶", "label": "Go", "phrase": "go", "color": "#FF9800",
+      "subItems": [
+        { "id": "to_go", "emoji": "➡🚶", "label": "To Go", "phrase": "to go", "color": "#FF9800" },
+        { "id": "going", "emoji": "🏃", "label": "Going", "phrase": "going", "color": "#FF9800" },
+        { "id": "went", "emoji": "🔙", "label": "Went", "phrase": "went", "color": "#FF9800" }
+      ]
+    },
+    { "id": "do", "emoji": "🏃", "label": "Do", "phrase": "do", "color": "#FF9800",
+      "subItems": [
+        { "id": "to_do", "emoji": "➡🏃", "label": "To Do", "phrase": "to do", "color": "#FF9800" },
+        { "id": "doing", "emoji": "🏃", "label": "Doing", "phrase": "doing", "color": "#FF9800" },
+        { "id": "did", "emoji": "🔙", "label": "Did", "phrase": "did", "color": "#FF9800" }
+      ]
+    },
+    { "id": "play", "emoji": "🎮", "label": "Play", "phrase": "play", "color": "#FF9800",
+      "subItems": [
+        { "id": "to_play", "emoji": "➡🎮", "label": "To Play", "phrase": "to play", "color": "#FF9800" },
+        { "id": "playing", "emoji": "🎮", "label": "Playing", "phrase": "playing", "color": "#FF9800" },
+        { "id": "played", "emoji": "🔙", "label": "Played", "phrase": "played", "color": "#FF9800" }
+      ]
+    },
+    { "id": "movie", "emoji": "🎬", "label": "Movie", "phrase": "movie", "color": "#FF9800",
+      "subItems": [
+        { "id": "watch", "emoji": "👀", "label": "Watch", "phrase": "watch a movie", "color": "#FF9800" },
+        { "id": "cinema", "emoji": "🍿", "label": "Cinema", "phrase": "cinema", "color": "#FF9800" }
+      ]
+    },
+    { "id": "help", "emoji": "❓", "label": "Help", "phrase": "help", "color": "#FF9800" },
+    { "id": "stop", "emoji": "✋", "label": "Stop", "phrase": "stop", "color": "#FF9800" },
+    { "id": "more", "emoji": "➕", "label": "More", "phrase": "more", "color": "#FF9800" },
+    { "id": "no", "emoji": "🚫", "label": "No", "phrase": "no", "color": "#FF9800" },
+    { "id": "yes", "emoji": "👍", "label": "Yes", "phrase": "yes", "color": "#FF9800" }
+  ],
+  "needs": [
+    {
+      "id": "hungry",
+      "emoji": "🍕",
+      "label": "Hungry",
+      "phrase": "Hungry",
+      "color": "#00BCD4",
+      "subItems": [
+        { "id": "eat", "emoji": "🍽️", "label": "Eat", "phrase": "eat", "color": "#00BCD4" },
+        { "id": "food_favorites", "emoji": "⭐", "label": "Faves", "phrase": "favorite food", "color": "#00BCD4",
+          "subItems": [
+            { "id": "fav_nuggets", "emoji": "🍗", "label": "Nuggets", "phrase": "chicken nuggets", "color": "#00BCD4" },
+            { "id": "fav_fries", "emoji": "🍟", "label": "Fries", "phrase": "french fries", "color": "#00BCD4" },
+            { "id": "fav_pizza", "emoji": "🍕", "label": "Pizza", "phrase": "pizza", "color": "#00BCD4" },
+            { "id": "fav_pasta", "emoji": "🍝", "label": "Pasta", "phrase": "pasta", "color": "#00BCD4" }
+          ]
+        },
+        { "id": "breakfast", "emoji": "🥞", "label": "Breakfast", "phrase": "breakfast", "color": "#00BCD4",
+          "subItems": [
+            { "id": "cereal", "emoji": "🥣", "label": "Cereal", "phrase": "cereal", "color": "#00BCD4" },
+            { "id": "eggs", "emoji": "🍳", "label": "Eggs", "phrase": "eggs", "color": "#00BCD4",
+              "subItems": [
+                { "id": "scrambled", "emoji": "🍳", "label": "Scrambled", "phrase": "scrambled eggs", "color": "#00BCD4" },
+                { "id": "fried", "emoji": "🍳", "label": "Fried", "phrase": "fried eggs", "color": "#00BCD4" }
+              ]
+            },
+            { "id": "toast", "emoji": "🍞", "label": "Toast", "phrase": "toast", "color": "#00BCD4" },
+            { "id": "pancakes", "emoji": "🥞", "label": "Pancakes", "phrase": "pancakes", "color": "#00BCD4" },
+            { "id": "sausage", "emoji": "🌭", "label": "Sausage", "phrase": "sausage", "color": "#00BCD4" },
+            { "id": "oatmeal", "emoji": "🥣", "label": "Oatmeal", "phrase": "oatmeal", "color": "#00BCD4" },
+            { "id": "fruit", "emoji": "🍎", "label": "Fruit", "phrase": "fruit", "color": "#00BCD4",
+              "subItems": [
+                { "id": "apple", "emoji": "🍎", "label": "Apple", "phrase": "apple", "color": "#00BCD4" },
+                { "id": "banana", "emoji": "🍌", "label": "Banana", "phrase": "banana", "color": "#00BCD4" },
+                { "id": "berries", "emoji": "🍓", "label": "Berries", "phrase": "berries", "color": "#00BCD4" }
+              ]
+            }
+          ]
+        },
+        { "id": "lunch", "emoji": "🥪", "label": "Lunch", "phrase": "lunch", "color": "#00BCD4",
+          "subItems": [
+            { "id": "sandwich", "emoji": "🥪", "label": "Sandwich", "phrase": "sandwich", "color": "#00BCD4" },
+            { "id": "sub", "emoji": "🥖", "label": "Sub", "phrase": "sub sandwich", "color": "#00BCD4" },
+            { "id": "soup", "emoji": "🥣", "label": "Soup", "phrase": "soup", "color": "#00BCD4" },
+            { "id": "salad", "emoji": "🥗", "label": "Salad", "phrase": "salad", "color": "#00BCD4" },
+            { "id": "sushi", "emoji": "🍣", "label": "Sushi", "phrase": "sushi", "color": "#00BCD4" }
+          ]
+        },
+        { "id": "dinner", "emoji": "🍽️", "label": "Dinner", "phrase": "dinner", "color": "#00BCD4",
+          "subItems": [
+            { "id": "pizza", "emoji": "🍕", "label": "Pizza", "phrase": "pizza", "color": "#00BCD4" },
+            { "id": "burger", "emoji": "🍔", "label": "Burger", "phrase": "burger", "color": "#00BCD4" },
+            { "id": "pasta", "emoji": "🍝", "label": "Pasta", "phrase": "pasta", "color": "#00BCD4" },
+            { "id": "steak", "emoji": "🥩", "label": "Steak", "phrase": "steak", "color": "#00BCD4" },
+            { "id": "chicken", "emoji": "🍗", "label": "Chicken", "phrase": "chicken", "color": "#00BCD4" },
+            { "id": "takeout", "emoji": "🥡", "label": "Takeout", "phrase": "takeout", "color": "#00BCD4" }
+          ]
+        },
+        { "id": "snacks", "emoji": "🥨", "label": "Snacks", "phrase": "snack", "color": "#00BCD4",
+          "subItems": [
+            { "id": "chips", "emoji": "🥔", "label": "Chips", "phrase": "chips", "color": "#00BCD4" },
+            { "id": "cookie", "emoji": "🍪", "label": "Cookie", "phrase": "cookie", "color": "#00BCD4" },
+            { "id": "crackers", "emoji": "🍘", "label": "Crackers", "phrase": "crackers", "color": "#00BCD4" },
+            { "id": "candy", "emoji": "🍬", "label": "Candy", "phrase": "candy", "color": "#00BCD4" }
+          ]
+        },
+        { "id": "ingredients", "emoji": "🧂", "label": "Cook", "phrase": "ingredients", "color": "#00BCD4",
+          "subItems": [
+            { "id": "protein", "emoji": "🥩", "label": "Meat", "phrase": "meat", "color": "#00BCD4",
+              "subItems": [
+                { "id": "beef", "emoji": "🥩", "label": "Beef", "phrase": "beef", "color": "#00BCD4" },
+                { "id": "pork", "emoji": "🥓", "label": "Pork", "phrase": "pork", "color": "#00BCD4" },
+                { "id": "fish", "emoji": "🐟", "label": "Fish", "phrase": "fish", "color": "#00BCD4" },
+                { "id": "chicken_raw", "emoji": "🍗", "label": "Chicken", "phrase": "chicken", "color": "#00BCD4" }
+              ]
+            },
+            { "id": "dairy", "emoji": "🧀", "label": "Dairy", "phrase": "dairy", "color": "#00BCD4",
+              "subItems": [
+                { "id": "milk", "emoji": "🥛", "label": "Milk", "phrase": "milk", "color": "#00BCD4" },
+                { "id": "cheese_hard", "emoji": "🧀", "label": "Hard Chs", "phrase": "hard cheese", "color": "#00BCD4" },
+                { "id": "cheese_soft", "emoji": "🍚", "label": "Soft Chs", "phrase": "soft cheese", "color": "#00BCD4" },
+                { "id": "yogurt", "emoji": "🍦", "label": "Yogurt", "phrase": "yogurt", "color": "#00BCD4" }
+              ]
+            },
+            { "id": "vegetables", "emoji": "🥦", "label": "Veg", "phrase": "vegetables", "color": "#00BCD4",
+              "subItems": [
+                { "id": "broccoli", "emoji": "🥦", "label": "Broccoli", "phrase": "broccoli", "color": "#00BCD4" },
+                { "id": "carrot", "emoji": "🥕", "label": "Carrot", "phrase": "carrot", "color": "#00BCD4" },
+                { "id": "leafy", "emoji": "🥬", "label": "Leafy", "phrase": "leafy greens", "color": "#00BCD4" },
+                { "id": "potato", "emoji": "🥔", "label": "Potato", "phrase": "potato", "color": "#00BCD4" }
+              ]
+            },
+            { "id": "seasoning", "emoji": "🧂", "label": "Spice", "phrase": "seasoning", "color": "#00BCD4",
+              "subItems": [
+                { "id": "salt", "emoji": "🧂", "label": "Salt", "phrase": "salt", "color": "#00BCD4" },
+                { "id": "pepper", "emoji": "🌶️", "label": "Pepper", "phrase": "pepper", "color": "#00BCD4" },
+                { "id": "sauce", "emoji": "🥫", "label": "Sauce", "phrase": "sauce", "color": "#00BCD4" },
+                { "id": "ketchup", "emoji": "🍅", "label": "Ketchup", "phrase": "ketchup", "color": "#00BCD4" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "thirsty",
+      "emoji": "💧",
+      "label": "Thirsty",
+      "phrase": "Thirsty",
+      "color": "#00BCD4",
+      "subItems": [
+        { "id": "drink", "emoji": "🥤", "label": "Drink", "phrase": "drink", "color": "#00BCD4" },
+        { "id": "to_drink", "emoji": "➡🥤", "label": "To Drink", "phrase": "to drink", "color": "#00BCD4" },
+        { "id": "water", "emoji": "🚰", "label": "Water", "phrase": "water", "color": "#00BCD4" },
+        { "id": "juice", "emoji": "🧃", "label": "Juice", "phrase": "juice", "color": "#00BCD4" },
+        { "id": "soda", "emoji": "🥤", "label": "Soda", "phrase": "soda", "color": "#00BCD4" },
+        { "id": "coffee", "emoji": "☕", "label": "Coffee", "phrase": "coffee", "color": "#00BCD4" }
+      ]
+    },
+    {
+      "id": "need", "emoji": "🆘", "label": "Need", "phrase": "need", "color": "#00BCD4",
+      "subItems": [
+        { "id": "needs", "emoji": "🆘", "label": "Needs", "phrase": "needs", "color": "#00BCD4" },
+        { "id": "to_need", "emoji": "➡🆘", "label": "To Need", "phrase": "to need", "color": "#00BCD4" },
+        { "id": "needed", "emoji": "🔙", "label": "Needed", "phrase": "needed", "color": "#00BCD4" }
+      ]
+    },
+    {
+      "id": "essentials", "emoji": "🎒", "label": "Items", "phrase": "items", "color": "#00BCD4",
+      "subItems": [
+        { "id": "wallet", "emoji": "💳", "label": "Wallet", "phrase": "wallet", "color": "#00BCD4" },
+        { "id": "keys", "emoji": "🔑", "label": "Keys", "phrase": "keys", "color": "#00BCD4" },
+        { "id": "headphones", "emoji": "🎧", "label": "Phone", "phrase": "headphones", "color": "#00BCD4" },
+        { "id": "glasses", "emoji": "👓", "label": "Glasses", "phrase": "glasses", "color": "#00BCD4" }
+      ]
+    },
+    { "id": "break", "emoji": "⏸️", "label": "Break", "phrase": "break", "color": "#00BCD4" },
+    { "id": "toilet", "emoji": "🚽", "label": "Toilet", "phrase": "bathroom", "color": "#00BCD4" },
+    { "id": "device", "emoji": "📱", "label": "Device", "phrase": "device", "color": "#00BCD4" }
+  ],
+  "when": [
+    { "id": "now", "emoji": "🕒", "label": "Now", "phrase": "now", "color": "#9C27B0" },
+    { "id": "later", "emoji": "⏱️", "label": "Later", "phrase": "later", "color": "#9C27B0" },
+    { "id": "today", "emoji": "🌞", "label": "Today", "phrase": "today", "color": "#9C27B0" },
+    { "id": "tomorrow", "emoji": "🌅", "label": "Tomorrow", "phrase": "tomorrow", "color": "#9C27B0" }
+  ],
+  "linkers": [
+    { "id": "and", "emoji": "➕", "label": "And", "phrase": "and", "color": "#795548" },
+    { "id": "but", "emoji": "⚖️", "label": "But", "phrase": "but", "color": "#795548" },
+    { "id": "because", "emoji": "❓", "label": "Because", "phrase": "because", "color": "#795548" },
+    { "id": "very", "emoji": "🔥", "label": "Very", "phrase": "very", "color": "#795548" }
+  ],
+  "descriptions": [
+    { "id": "big", "emoji": "🦣", "label": "Big", "phrase": "big", "color": "#FF5722" },
+    { "id": "small", "emoji": "🐜", "label": "Small", "phrase": "small", "color": "#FF5722" },
+    { "id": "hot", "emoji": "🔥", "label": "Hot", "phrase": "hot", "color": "#FF5722" },
+    { "id": "cold", "emoji": "❄️", "label": "Cold", "phrase": "cold", "color": "#FF5722" }
+  ],
+  "questions": [
+    { "id": "whatq", "emoji": "❓", "label": "What", "phrase": "what?", "color": "#3F51B5" },
+    { "id": "whereq", "emoji": "📍", "label": "Where", "phrase": "where?", "color": "#3F51B5" },
+    { "id": "why", "emoji": "🤔", "label": "Why", "phrase": "why?", "color": "#3F51B5" }
+  ],
+  "grammar": [
+    { "id": "to", "emoji": "➡", "label": "To", "phrase": "to", "color": "#607D8B" },
+    { "id": "the", "emoji": "The", "label": "The", "phrase": "the", "color": "#607D8B" },
+    { "id": "a", "emoji": "A", "label": "A", "phrase": "a", "color": "#607D8B" },
+    { "id": "is", "emoji": "Is", "label": "Is", "phrase": "is", "color": "#607D8B" },
+    { "id": "with", "emoji": "🤝", "label": "With", "phrase": "with", "color": "#607D8B" },
+    { "id": "for", "emoji": "🎁", "label": "For", "phrase": "for", "color": "#607D8B" },
+    { "id": "in", "emoji": "📥", "label": "In", "phrase": "in", "color": "#607D8B" },
+    { "id": "on", "emoji": "🔛", "label": "On", "phrase": "on", "color": "#607D8B" },
+    { "id": "at", "emoji": "@", "label": "At", "phrase": "at", "color": "#607D8B" },
+    { "id": "it", "emoji": "👉", "label": "It", "phrase": "it", "color": "#607D8B" }
+  ]
+}

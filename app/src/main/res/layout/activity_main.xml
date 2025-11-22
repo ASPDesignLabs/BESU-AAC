@@ -30,6 +30,42 @@
         android:text="Checking..."
         android:textSize="16sp" />
 
+    TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="User Profile"
+    android:textStyle="bold"
+    android:layout_marginTop="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Your Name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUserName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btnSaveName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:layout_marginStart="8dp"
+            style="@style/Widget.Material3.Button.OutlinedButton"/>
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvAccessibilityStatus"
         android:layout_width="wrap_content"
@@ -40,10 +76,37 @@
     <!-- Add inside LinearLayout, maybe above btnOpenAccessibility -->
 
     <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchMenuSticky"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keep Menu Open After Selection"
+        android:textSize="16sp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Existing TTS Switch -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switchTTS"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enable Text-to-Speech (Voice)"
+        android:text="Enable Voice (Text-to-Speech)"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- NEW: Master Visual Toggle -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchOverlayVisuals"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Show Large Emoji Overlay"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- NEW: Sticky Mode Toggle -->
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switchOverlaySticky"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keep Overlay Until Tapped (No Timer)"
         android:textSize="16sp"
         android:layout_marginBottom="24dp" />
 

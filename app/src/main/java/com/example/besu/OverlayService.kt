@@ -25,6 +25,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
     private var isTtsReady = false
 
+    // FIX: Queue for messages that arrive before TTS is ready
+    private var pendingSpeech: String? = null
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
@@ -32,11 +35,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         createNotificationChannel()
         startForeground(1, createNotification())
 
-        // Initialize TTS Engine
+        // Start TTS Init immediately
         tts = TextToSpeech(this, this)
     }
 
-    // TTS Initialization Callback
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts?.setLanguage(Locale.US)
@@ -44,6 +46,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 Log.e("OverlayService", "TTS Language not supported")
             } else {
                 isTtsReady = true
+                Log.d("OverlayService", "TTS Ready")
+
+                // FIX: Check if we have a queued message
+                pendingSpeech?.let {
+                    speakText(it)
+                    pendingSpeech = null
+                }
             }
         } else {
             Log.e("OverlayService", "TTS Initialization failed")
@@ -53,29 +62,33 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val emotionEmoji = intent?.getStringExtra("emotion") ?: "😊"
         val duration = intent?.getLongExtra("duration", 3000L) ?: 3000L
+        val directPhrase = intent?.getStringExtra("phrase")
 
         showOverlay(emotionEmoji, duration)
-        speakEmotion(emotionEmoji) // Trigger Voice
+
+        val textToSpeak = directPhrase ?: CommunicationData.getPhraseForEmoji(emotionEmoji)
+
+        // FIX: If ready, speak. If not, queue it.
+        if (isTtsReady) {
+            speakText(textToSpeak)
+        } else {
+            Log.d("OverlayService", "TTS not ready, queuing: $textToSpeak")
+            pendingSpeech = textToSpeak
+        }
 
         return START_NOT_STICKY
     }
 
-    private fun speakEmotion(emoji: String) {
-        // 1. Check if User enabled TTS
+    private fun speakText(text: String) {
+        // Check preferences first
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val isEnabled = prefs.getBoolean("tts_enabled", true)
-        if (!isEnabled) return
+        if (!prefs.getBoolean("tts_enabled", true)) return
 
-        // 2. Check if Engine is ready
-        if (!isTtsReady || tts == null) return
-
-        // 3. Lookup Phrase
-        val phrase = EmotionData.getPhraseForEmoji(emoji)
-        if (phrase.isNotEmpty()) {
-            // QUEUE_FLUSH interrupts whatever was saying before (Responsive!)
-            tts?.speak(phrase, TextToSpeech.QUEUE_FLUSH, null, "TTS_ID")
-        }
+        // Speak
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TTS_ID")
     }
+
+    // ... [showOverlay, removeOverlay, onDestroy, createNotification remain the same] ...
 
     private fun showOverlay(emotion: String, duration: Long) {
         if (windowManager == null) {
@@ -104,7 +117,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         params.gravity = Gravity.CENTER
         windowManager?.addView(overlayView, params)
 
-        overlayView?.postDelayed({ removeOverlay() }, duration)
+        val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val isSticky = prefs.getBoolean("overlay_sticky", false)
+
+        if (!isSticky) {
+            overlayView?.postDelayed({ removeOverlay() }, duration)
+        }
+
         overlayView?.setOnClickListener { removeOverlay() }
     }
 
@@ -116,30 +135,22 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
-        // Shut down TTS to free resources
         tts?.stop()
         tts?.shutdown()
         removeOverlay()
         super.onDestroy()
     }
 
-    // ... [Notification Channel code remains the same] ...
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "overlay_service",
-                "Emotion Overlay",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            val channel = NotificationChannel("overlay_service", "Emotion Overlay", NotificationManager.IMPORTANCE_LOW)
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, "overlay_service")
             .setContentTitle("Emotional AAC")
-            .setContentText("Listening for gestures")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .build()
     }

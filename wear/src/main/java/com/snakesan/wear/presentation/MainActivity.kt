@@ -28,40 +28,45 @@ class MainActivity : Activity(), SensorEventListener {
     private lateinit var debugText: TextView
     private lateinit var mainLayout: LinearLayout
 
-    private enum class State { IDLE, LISTENING, COOLDOWN }
+    private enum class State { IDLE, LISTENING, ARM_UP, COOLDOWN }
     private var currentState = State.IDLE
 
     // --- GESTURE VARS ---
-
-    // 1. UNLOCK (Twist)
+    private var noSweepCount = 0
+    // Activation (Unlock)
     private var lastY = 0f
     private var twistCount = 0
     private var lastTwistTime = 0L
 
-    // 2. THUMBS UP (Pump)
-    private var isThumbsPrimed = false
+    // Arm Up State
+    private var armUpStartTime = 0L
+    private var maxXInSequence = 0f
 
-    // 3. WAVE (Wiggle)
+    // Wave Tracking
     private var waveCount = 0
-    private var lastWaveDir = 0 // 1 or -1
+    private var lastWaveDir = 0
     private var lastWaveTime = 0L
 
-    // 4. STOP (Hold Pose)
+    // Horizontal / Low Tracking
     private var stopHoldFrames = 0
 
-    // 5. NO (Sweep)
-    private var noSweepCount = 0
-    private var lastNoDir = 0
-    private var lastNoTime = 0L
+    // Shared Twist Tracking (Name vs No)
+    private var commandTwistCount = 0
+    private var lastCmdTwistDir = 0
+    private var lastCmdTwistTime = 0L
 
-    // SENSOR CACHE
+    // Nice to Meet You Tracking
+    private var niceWaveStart = false
+    private var niceSweepTime = 0L
+
+    // Sensors
     private var currentGyroX = 0f
     private var currentGyroY = 0f
     private var currentGyroZ = 0f
 
-    // TIMERS
+    // Timers
     private var listeningStartTime = 0L
-    private val LISTENING_WINDOW = 5000L // Increased to 5s for complex gestures
+    private val LISTENING_WINDOW = 6000L
     private val COOLDOWN_TIME = 2000L
     private var cooldownStartTime = 0L
     private var lastLogTime = 0L
@@ -85,7 +90,7 @@ class MainActivity : Activity(), SensorEventListener {
         }
 
         debugText = TextView(this).apply {
-            text = "Twist wrist to unlock"
+            text = "Twist to unlock"
             gravity = Gravity.CENTER
             textSize = 10f
             setTextColor(Color.LTGRAY)
@@ -121,7 +126,6 @@ class MainActivity : Activity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         event ?: return
 
-        // Cache Gyro Data
         if (event.sensor.type == Sensor.TYPE_GYROSCOPE) {
             currentGyroX = event.values[0]
             currentGyroY = event.values[1]
@@ -129,42 +133,37 @@ class MainActivity : Activity(), SensorEventListener {
             return
         }
 
-        // Run Logic on Accel Tick
         if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
             val currentTime = System.currentTimeMillis()
 
-            // VISUAL DEBUG
             if (currentTime - lastLogTime > 200) {
                 val stateStr = when(currentState) {
                     State.IDLE -> "LOCKED"
-                    State.LISTENING -> "LISTENING..."
+                    State.LISTENING -> "LISTENING"
+                    State.ARM_UP -> "ARM UP"
                     State.COOLDOWN -> "SENT"
                 }
-                // Show critical axes
-                debugText.text = "$stateStr\nX:${"%.1f".format(x)} Y:${"%.1f".format(y)}\nG_Z:${"%.1f".format(currentGyroZ)}"
+                debugText.text = "$stateStr\nX:${"%.1f".format(x)} Y:${"%.1f".format(y)}"
                 lastLogTime = currentTime
             }
 
             when (currentState) {
-                State.IDLE -> checkActivationGesture(x, y, currentTime)
-                State.LISTENING -> checkCommandGestures(x, y, z, currentTime)
+                State.IDLE -> checkUnlock(x, y, currentTime)
+                State.LISTENING -> checkListening(x, y, z, currentTime)
+                State.ARM_UP -> checkArmUpGestures(x, y, z, currentTime)
                 State.COOLDOWN -> checkCooldown(currentTime)
             }
         }
     }
 
-    // --- 1. UNLOCK ---
-    private fun checkActivationGesture(x: Float, y: Float, time: Long) {
+    // 1. UNLOCK (Double Twist)
+    private fun checkUnlock(x: Float, y: Float, time: Long) {
         if (time - lastTwistTime > 800) twistCount = 0
-
-        // Arm must be raised (Not hanging down X>8)
-        if (abs(x) > 8.0f) {
-            twistCount = 0
-            return
-        }
+        // Must be roughly horizontal or low
+        if (x > 8.0f) { twistCount = 0; return }
 
         if (abs(y - lastY) > 7.0f) {
             twistCount++
@@ -175,165 +174,171 @@ class MainActivity : Activity(), SensorEventListener {
         if (twistCount >= 3) activateListening(time)
     }
 
-    // --- 2. COMMAND ROUTER ---
-    private fun checkCommandGestures(x: Float, y: Float, z: Float, time: Long) {
+    // 2. LISTENING (Router)
+    private fun checkListening(x: Float, y: Float, z: Float, time: Long) {
         if (time - listeningStartTime > LISTENING_WINDOW) {
             resetState()
             return
         }
 
-        // A. STOP (✋) - "Talk to the hand"
-        // Pose: Arm extended forward, Palm Forward.
-        // PHYSICS:
-        // 1. Arm is Horizontal -> X should be low (Gravity is perpendicular to wrist).
-        // 2. Watch is Vertical (6 o'clock down) -> Y should be HIGH (Gravity pulls Y).
-        if (y > 7.0f && abs(x) < 4.0f) {
-            // Stability Check: Hand must be still to look like a "Stop" sign
-            val totalRot = abs(currentGyroX) + abs(currentGyroY) + abs(currentGyroZ)
+        // A. VERTICAL POSE (Enter Arm Up State)
+        // If X is high positive, arm is Up
+        if (x > 6.5f) {
+            currentState = State.ARM_UP
+            armUpStartTime = time
+            maxXInSequence = x
 
-            if (totalRot < 0.8f) { // Very Still
-                stopHoldFrames++
-                if (stopHoldFrames > 2) {
-                    statusText.text = "HOLDING ✋"
-                    statusText.setTextColor(Color.CYAN)
-                }
-            } else {
-                stopHoldFrames = 0
-            }
-
-            // Hold for ~0.5s (10 frames)
-            if (stopHoldFrames >= 10) {
-                fireCommand("✋", time)
-                return
-            }
-        } else {
-            // Only reset frames if we completely lose the pose
-            if (stopHoldFrames > 0 && y < 5.0f) stopHoldFrames = 0
-        }
-
-        // B. WAVE (👋) - "Royal Wave"
-        // Pose: Arm Up (Vertical-ish).
-        // Motion: Side-to-side rotation.
-        // PHYSICS:
-        // 1. Arm Up -> X is Positive (> 5.0).
-        // 2. Motion -> Gyroscope oscillation.
-        if (x > 5.0f) {
-            // When palm is forward and arm is up:
-            // Waving left/right acts on Gyro X (Face tilt) AND Gyro Z (Face rotation).
-            // Let's check BOTH.
-            val wiggleEnergy = abs(currentGyroX) + abs(currentGyroZ)
-
-            // 2.5 rad/s is a healthy wave
-            if (wiggleEnergy > 2.5f) {
-                // Check direction flip on the dominant axis
-                val dominantGyro = if (abs(currentGyroX) > abs(currentGyroZ)) currentGyroX else currentGyroZ
-                val dir = if (dominantGyro > 0) 1 else -1
-
-                if (dir != lastWaveDir) {
-                    waveCount++
-                    lastWaveDir = dir
-                    lastWaveTime = time
-                    // Feedback
-                    statusText.text = "WAVING..."
-                    statusText.setTextColor(Color.MAGENTA)
-                }
-            }
-
-            if (time - lastWaveTime > 600) waveCount = 0
-
-            // Require 4 direction changes (Left-Right-Left-Right)
-            if (waveCount >= 4) {
-                fireCommand("👋", time)
-                return
-            }
-        }
-
-        // C. NO (🚫) - "Wiper"
-        // Pose: Horizontal sweep. (Keep existing working logic)
-        // Note: Increased threshold slightly to prevent overlap with Wave
-        if (abs(currentGyroY) > 3.0f || abs(currentGyroX) > 3.0f) {
-            // Combine axes energy for sweeping motion
-            val sweepEnergy = currentGyroX + currentGyroY
-            val dir = if (sweepEnergy > 0) 1 else -1
-
-            if (dir != lastNoDir) {
-                noSweepCount++
-                lastNoDir = dir
-                lastNoTime = time
-            }
-        }
-        if (time - lastNoTime > 600) noSweepCount = 0
-
-        if (noSweepCount >= 3) {
-            fireCommand("🚫", time)
+            statusText.text = "ARM UP..."
+            statusText.setTextColor(Color.CYAN)
+            vibrate(50)
             return
         }
 
-        // D. THUMBS UP (👍) - "Pump"
-        // (Keep existing working logic)
-        if (x > 7.0f) {
-            if (!isThumbsPrimed) {
-                isThumbsPrimed = true
-                statusText.text = "PRIMED 👍"
-                statusText.setTextColor(Color.YELLOW)
-                vibrate(50)
-            }
+        // B. HORIZONTAL / LOW GESTURES
+        checkHorizontalGestures(x, y, z, time)
+    }
+
+    // 3. ARM UP (Wave, Nice, Thumb)
+    private fun checkArmUpGestures(x: Float, y: Float, z: Float, time: Long) {
+        if (x > maxXInSequence) maxXInSequence = x
+
+        if (time - armUpStartTime > 4000) {
+            resetState()
+            return
         }
-        if (isThumbsPrimed && x < 4.0f) {
+
+        // --- CHECK 1: THUMBS UP (Pump Drop) ---
+        if (x < 4.0f && waveCount == 0) {
             fireCommand("👍", time)
             return
+        }
+
+        // --- CHECK 2: WAVE & NICE ---
+        val wiggle = abs(currentGyroX) + abs(currentGyroZ)
+        val sweep = abs(currentGyroY)
+
+        // Nice (Sweep)
+        if (sweep > 3.0f) {
+            fireCommand("NICE", time)
+            return
+        }
+
+        // Wave (Wiggle)
+        if (wiggle > 2.5f) {
+            val dir = if (currentGyroZ > 0) 1 else -1
+            if (dir != lastWaveDir) {
+                waveCount++
+                lastWaveDir = dir
+                lastWaveTime = time
+                statusText.text = "WAVING..."
+                statusText.setTextColor(Color.YELLOW)
+            }
+        }
+
+        if (time - lastWaveTime > 600) waveCount = 0
+
+        if (waveCount >= 4) {
+            fireCommand("👋", time)
+            return
+        }
+    }
+
+    // 4. HORIZONTAL & LOW GESTURES
+    private fun checkHorizontalGestures(x: Float, y: Float, z: Float, time: Long) {
+        // A. STOP (High Y)
+        if (y > 7.0f && abs(x) < 5.0f) {
+            val totalRot = abs(currentGyroX) + abs(currentGyroY) + abs(currentGyroZ)
+            if (totalRot < 1.0f) {
+                stopHoldFrames++
+                statusText.text = "HOLDING ✋"
+                statusText.setTextColor(Color.CYAN)
+            } else stopHoldFrames = 0
+
+            if (stopHoldFrames >= 10) fireCommand("✋", time)
+            return
+        } else {
+            stopHoldFrames = 0
+        }
+
+        // B. SHARED TWIST (Name vs No)
+        if (abs(currentGyroZ) > 3.0f) {
+            val dir = if (currentGyroZ > 0) 1 else -1
+            if (dir != lastCmdTwistDir) {
+                if (time - lastCmdTwistTime < 600) commandTwistCount++
+                else commandTwistCount = 1
+
+                lastCmdTwistDir = dir
+                lastCmdTwistTime = time
+            }
+        }
+        if (time - lastCmdTwistTime > 800) commandTwistCount = 0
+
+        // DECISION LOGIC
+        if (commandTwistCount >= 3) {
+            // CASE 1: NAME (Arm Level, X near 0)
+            if (abs(x) < 3.5f) {
+                fireCommand("NAME", time)
+                return
+            }
+
+            // CASE 2: NO (Arm Down, X Negative)
+            // Assuming Left Wrist: Thumb Up = +X, so Thumb Down/Pointing Floor = -X
+            if (x < -2.0f) {
+                fireCommand("🚫", time)
+                return
+            }
         }
     }
 
     private fun activateListening(time: Long) {
         currentState = State.LISTENING
         listeningStartTime = time
-
-        // Reset all gesture counters
-        twistCount = 0
-        waveCount = 0
-        stopHoldFrames = 0
-        noSweepCount = 0
-        isThumbsPrimed = false
+        resetCounters()
 
         statusText.text = "UNLOCKED!"
         statusText.setTextColor(Color.GREEN)
         mainLayout.setBackgroundColor(Color.parseColor("#222222"))
-
         vibrate(100)
+        sendToPhone("/debug/sensor", "STATE: UNLOCKED")
     }
 
-    private fun fireCommand(emoji: String, time: Long) {
-        // Send specific path based on emoji
-        val path = when(emoji) {
+    private fun fireCommand(type: String, time: Long) {
+        val path = when(type) {
+            "NAME" -> "/gesture/name"
+            "NICE" -> "/gesture/nice"
             "👋" -> "/gesture/wave"
-            "✋" -> "/gesture/stop" // You need to add this listener on Phone
-            "🚫" -> "/gesture/no"   // You need to add this listener on Phone
+            "✋" -> "/gesture/stop"
+            "🚫" -> "/gesture/no"
             else -> "/gesture/thumbsup"
         }
 
+        val label = if(type == "NAME") "MY NAME" else if(type == "NICE") "NICE TO MEET" else type
+
         sendToPhone(path, null)
-
-        statusText.text = "$emoji SENT"
+        statusText.text = "$label SENT"
         mainLayout.setBackgroundColor(Color.parseColor("#004400"))
-
         vibrate(300)
 
         currentState = State.COOLDOWN
         cooldownStartTime = time
+        resetCounters()
     }
 
-    // ... [Rest of boilerplate: checkCooldown, resetState, sendToPhone, vibrate] ...
     private fun checkCooldown(time: Long) {
         if (time - cooldownStartTime > COOLDOWN_TIME) resetState()
     }
 
     private fun resetState() {
         currentState = State.IDLE
-        twistCount = 0
+        resetCounters()
         statusText.text = "LOCKED"
         statusText.setTextColor(Color.GRAY)
         mainLayout.setBackgroundColor(Color.BLACK)
+    }
+
+    private fun resetCounters() {
+        twistCount = 0; waveCount = 0; stopHoldFrames = 0; noSweepCount = 0
+        commandTwistCount = 0; niceWaveStart = false; maxXInSequence = 0f
     }
 
     private fun vibrate(duration: Long) {

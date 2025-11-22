@@ -2,18 +2,189 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#80000000"
-    android:clickable="true">
-    
+    android:background="#CC000000">
+
+    <!-- 1. SENTENCE BUILDER BAR (Top, Hidden by default) -->
+    <!-- Z-Index: Highest (Draws on top) -->
+    <LinearLayout
+        android:id="@+id/sentenceBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:background="#DD222222"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:elevation="20dp">
+
+        <TextView
+            android:id="@+id/tvSentence"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:paddingStart="8dp"
+            android:textStyle="bold"
+            android:hint="Select words..."
+            android:textColorHint="#888888"/>
+
+        <ImageButton
+            android:id="@+id/btnPlaySentence"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_media_play"
+            android:background="#00000000"
+            android:tint="#4CAF50"
+            android:contentDescription="Play Sentence"/>
+
+        <ImageButton
+            android:id="@+id/btnClearSentence"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_input_delete"
+            android:background="#00000000"
+            android:tint="#FF5252"
+            android:contentDescription="Backspace"/>
+    </LinearLayout>
+
+    <!-- 2. PANIC BUTTON (Top Right - Always Accessible) -->
+    <TextView
+        android:id="@+id/btnPanic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="16dp"
+        android:text="🆘"
+        android:textSize="24sp"
+        android:background="@drawable/circle_bg_red"
+        android:padding="12dp"
+        android:gravity="center"
+        android:elevation="10dp"/>
+
+    <!-- 3. CENTER: Radial Menu -->
     <com.example.besu.RadialMenuLayout
         android:id="@+id/radialContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    
-    <FrameLayout
-        android:id="@+id/confirmationContainer"
-        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone" />
-        
+        android:layout_gravity="center" />
+
+    <!-- 4. TOP CONTEXT AREA (Rows 1 & 2) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="60dp"
+        android:orientation="vertical">
+
+        <!-- Row 1: Smart / History (Endless) -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/rowTop1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp" />
+        </HorizontalScrollView>
+
+        <!-- Row 2: Subject / Location -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/rowTop2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- 5. BOTTOM CONTEXT AREA (Rows 3 & 4) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="48dp"
+        android:orientation="vertical">
+
+        <!-- Row 3: Action / Needs -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/rowBottom1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp" />
+        </HorizontalScrollView>
+
+        <!-- Row 4: Navigation + Grammar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <!-- HOME BUTTON -->
+            <TextView
+                android:id="@+id/btnHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏠"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:padding="10dp"
+                android:background="@drawable/circle_bg_gray"
+                android:layout_marginEnd="8dp"/>
+
+            <!-- STAR BUTTON (Saved Phrases) -->
+            <TextView
+                android:id="@+id/btnSavedPhrases"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="#FFD700"
+                android:padding="10dp"
+                android:background="@drawable/circle_bg_gray"
+                android:layout_marginEnd="8dp"/>
+
+            <!-- Bottom Scroll (Time / Questions) -->
+            <HorizontalScrollView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:scrollbars="none">
+                <LinearLayout
+                    android:id="@+id/rowBottom2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 6. MODE TOGGLE (Bottom Right) -->
+    <Button
+        android:id="@+id/btnToggleMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="Mode: Instant"
+        android:textSize="12sp"
+        android:backgroundTint="#555555"/>
+
 </FrameLayout>

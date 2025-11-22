@@ -1,15 +1,14 @@
-// Notice the semicolon at the end of this line
-package com.example.besu;
+package com.example.besu
 
-import android.content.Context;
-import android.content.Intent; // You were missing this import
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle; // You were missing this import
-import android.provider.Settings;
-import android.widget.Button;
-import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity; // You were missing this import
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
 class SetupActivity : AppCompatActivity() {
 
@@ -63,29 +62,28 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun completeSetup() {
-        // Mark setup as complete
+        // 1. Mark setup as complete
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         prefs.edit().putBoolean("setup_complete", true).apply()
 
-        // Initialize default gestures
+        // 2. Initialize default gesture prefs if needed
         val gesturePref = getSharedPreferences("gestures", Context.MODE_PRIVATE)
-        gesturePref.edit().apply {
-            putString("triple_tap", "😊")
-            putString("device_triple_tap", "👍")
-            apply()
+        if (!gesturePref.contains("triple_tap")) {
+            gesturePref.edit().apply {
+                putString("triple_tap", "😊")
+                putString("device_triple_tap", "👍")
+                apply()
+            }
         }
 
-        // Start both detection services
-        // Note: You need to create these service files (TapDetectionService.kt, AccelerometerTapService.kt)
-        // startService(Intent(this, TapDetectionService::class.java))
-        // startService(Intent(this, AccelerometerTapService::class.java))
+        // 3. IMPORTANT: Start Main Activity BEFORE finishing
+        // This prevents the "DeadObjectException" by ensuring there is a valid window to go to.
+        val intent = Intent(this, MainActivity::class.java)
+        // Clear flags ensure we don't have back-stack weirdness
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
 
-        // Mark services as running
-        prefs.edit().putBoolean("service_running", true).apply()
-
-        // Go to main activity
-        // Note: You need to create MainActivity and its layout file
-        // startActivity(Intent(this, MainActivity::class.java))
+        // 4. Close this activity
         finish()
     }
 }
