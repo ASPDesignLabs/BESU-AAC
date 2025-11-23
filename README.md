@@ -57,7 +57,7 @@ This is a multi-module Gradle project (:app and :wear).
 
 1. Clone the Repository:
 
-	git clone https://github.com/yourusername/besu.git
+	git clone https://github.com/ASPDesignLabs/BESU-AAC.git
 
 
 
