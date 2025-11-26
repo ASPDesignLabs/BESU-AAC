@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wear"
+    namespace = "com.example.besu.wear"
     compileSdk = 36
 
     defaultConfig {
@@ -58,4 +58,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("com.google.android.gms:play-services-wearable:18.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("androidx.wear.compose:compose-material:1.3.0")
+    implementation("androidx.wear.compose:compose-foundation:1.3.0")
+    implementation("androidx.wear.compose:compose-navigation:1.3.0")
 }

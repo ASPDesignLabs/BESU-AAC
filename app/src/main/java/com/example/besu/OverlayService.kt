@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import android.util.Log
@@ -25,7 +26,6 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
     private var isTtsReady = false
 
-    // FIX: Queue for messages that arrive before TTS is ready
     private var pendingSpeech: String? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -35,7 +35,6 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         createNotificationChannel()
         startForeground(1, createNotification())
 
-        // Start TTS Init immediately
         tts = TextToSpeech(this, this)
     }
 
@@ -48,7 +47,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 isTtsReady = true
                 Log.d("OverlayService", "TTS Ready")
 
-                // FIX: Check if we have a queued message
+                // Apply Voice Preference immediately if available
+                applyVoicePreference()
+
                 pendingSpeech?.let {
                     speakText(it)
                     pendingSpeech = null
@@ -56,6 +57,24 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             }
         } else {
             Log.e("OverlayService", "TTS Initialization failed")
+        }
+    }
+
+    // New helper to apply the specific voice object
+    private fun applyVoicePreference() {
+        val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val savedVoiceName = prefs.getString("tts_voice_name", "")
+
+        if (!savedVoiceName.isNullOrEmpty()) {
+            try {
+                val targetVoice = tts?.voices?.find { it.name == savedVoiceName }
+                if (targetVoice != null) {
+                    tts?.voice = targetVoice
+                    Log.d("OverlayService", "Applied Voice: ${targetVoice.name}")
+                }
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Error setting voice", e)
+            }
         }
     }
 
@@ -68,11 +87,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
 
         val textToSpeak = directPhrase ?: CommunicationData.getPhraseForEmoji(emotionEmoji)
 
-        // FIX: If ready, speak. If not, queue it.
         if (isTtsReady) {
             speakText(textToSpeak)
         } else {
-            Log.d("OverlayService", "TTS not ready, queuing: $textToSpeak")
             pendingSpeech = textToSpeak
         }
 
@@ -80,15 +97,19 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun speakText(text: String) {
-        // Check preferences first
         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         if (!prefs.getBoolean("tts_enabled", true)) return
 
-        // Speak
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TTS_ID")
-    }
+        // Ensure voice is up to date in case it changed while service was running
+        applyVoicePreference()
 
-    // ... [showOverlay, removeOverlay, onDestroy, createNotification remain the same] ...
+        val params = Bundle()
+        // Request High Quality Network Synthesis
+        params.putString(TextToSpeech.Engine.KEY_FEATURE_NETWORK_SYNTHESIS, "true")
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params, "TTS_ID")
+    }
 
     private fun showOverlay(emotion: String, duration: Long) {
         if (windowManager == null) {

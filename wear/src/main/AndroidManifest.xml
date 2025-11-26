@@ -1,35 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <!-- Required for Wear OS apps -->
     <uses-permission android:name="android.permission.VIBRATE" />
+
     <uses-feature android:name="android.hardware.type.watch" />
 
     <application
         android:label="Besu Wear"
         android:theme="@android:style/Theme.DeviceDefault">
 
-        <!-- The UI that starts the service -->
+        <!-- 1. Main Watch Face / App -->
         <activity
             android:name="com.example.besu.wear.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- The Sensor Service -->
+        <!-- 2. Training / Calibration Activity (Launched via Intent) -->
+        <activity
+            android:name="com.example.besu.wear.TrainingActivity"
+            android:exported="false"
+            android:label="Gesture Trainer"
+            android:theme="@android:style/Theme.DeviceDefault" />
+
+        <!-- 3. Background Listener (Sync & Triggers) -->
         <service
-            android:name=".WearGestureService"
-            android:exported="true"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="gesture_detection" />
+            android:name="com.example.besu.wear.WearConfigListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/besu/config_push" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/besu/start_train" />
+            </intent-filter>
         </service>
+
     </application>
 
 </manifest>

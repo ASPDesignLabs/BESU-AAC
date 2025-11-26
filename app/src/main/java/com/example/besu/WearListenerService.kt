@@ -1,51 +1,103 @@
 package com.example.besu
 
+import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.IBinder
+import android.util.Log
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 
 class WearListenerService : WearableListenerService() {
+
+    companion object {
+        private const val TAG = "BesuWearListener"
+    }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
         super.onMessageReceived(messageEvent)
 
         val path = messageEvent.path
 
+        // 1. Debug Channel
         if (path == "/debug/sensor") {
             val debugMessage = messageEvent.data?.let { String(it, Charsets.UTF_8) } ?: "No data"
             broadcastLog(debugMessage)
-        } else {
-            broadcastLog("RX: $path")
+            return
+        }
 
-            when (path) {
-                // Core Emotions
-                "/gesture/wave" -> triggerOverlay("👋")
-                "/gesture/thumbsup" -> triggerOverlay("👍")
-                "/gesture/stop" -> triggerOverlay("✋")
-                "/gesture/no" -> triggerOverlay("🚫")
+        broadcastLog("RX CMD: $path")
+        Log.d(TAG, "Received command: $path")
 
-                // Social / Name
-                "/gesture/nice" -> triggerPhrase("🤝", "Nice to meet you.")
-                "/gesture/name" -> triggerNameIntro()
+        // 2. Identify the content and the ID for the Brain
+        val (emoji, phrase, id) = parseMessage(path, messageEvent.data)
 
-                "/gesture/test_ping" -> broadcastLog("✅ PING RECEIVED")
+        // 3. Trigger Action
+        triggerPhrase(emoji, phrase)
+
+        // 4. Teach the Brain
+        // If we identified a valid ID, tell the engine we used it.
+        if (id != null) {
+            // We run this on the main thread or a background thread?
+            // RecommendationEngine writes to disk, so let's be safe,
+            // but for a simple service this is usually fine on the listener thread
+            // as it's quick.
+            try {
+                RecommendationEngine.learnSentence(listOf(id))
+                RecommendationEngine.persist(this)
+                Log.d(TAG, "Brain updated with ID: $id")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update brain", e)
             }
         }
     }
 
-    private fun triggerNameIntro() {
-        val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        // Fetch the name saved in MainActivity
-        val name = prefs.getString("user_name", "")
+    private fun parseMessage(path: String, data: ByteArray?): Triple<String, String, String?> {
+        // Returns Triple(Emoji, Phrase, ID?)
 
-        val phrase = if (name.isNullOrEmpty()) {
-            "My name is..."
-        } else {
-            "My name is $name."
+        // A. Handle System Gestures (Mapped to specific IDs in your JSON)
+        if (path.startsWith("/gesture/")) {
+            return when (path) {
+                // Social
+                "/gesture/name" -> {
+                    val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                    val name = prefs.getString("user_name", "")
+                    val p = if (name.isNullOrEmpty()) "My name is..." else "My name is $name."
+                    Triple("😀", p, "my_name")
+                }
+                "/gesture/ask_name" -> Triple("❓", "What is your name?", "question_name")
+
+                // Refusal / Negation
+                "/gesture/no" -> Triple("🚫", "No.", "no")
+                "/gesture/hate" -> Triple("😠", "I hate this. Go away.", "hate")
+
+                // Greeting
+                "/gesture/wave" -> Triple("👋", "Hello.", "hello")
+                "/gesture/goodbye" -> Triple("👋", "Goodbye. See you later.", "goodbye")
+
+                // Command
+                "/gesture/stop" -> Triple("✋", "Stop.", "stop")
+                "/gesture/wait" -> Triple("⏳", "Please wait a moment.", "wait")
+
+                // Affirmation
+                "/gesture/thumbsup" -> Triple("👍", "Good.", "yes") // Mapping 'good' to 'yes' or 'good' ID
+                "/gesture/thumbsdown" -> Triple("👎", "That is bad.", "bad")
+
+                // Connection
+                "/gesture/nice" -> Triple("🤝", "Nice to meet you.", "nice")
+                "/gesture/same" -> Triple("✨", "Same here. Me too.", "same")
+
+                else -> Triple("❓", "Unknown Gesture", null)
+            }
         }
 
-        triggerPhrase("😀", phrase)
+        // B. Handle Raw Text / Custom Sentences sent from Watch Grid
+        // The path itself is the phrase usually, or we can send ID in the data payload if we get fancy later.
+        // For now, if the watch sends a custom phrase, we don't have a strict ID,
+        // unless we want to do a reverse lookup. We will return null for ID to be safe.
+        else {
+            return Triple("🗣️", path, null)
+        }
     }
 
     private fun broadcastLog(msg: String) {
@@ -55,23 +107,19 @@ class WearListenerService : WearableListenerService() {
         sendBroadcast(intent)
     }
 
-    private fun triggerOverlay(emoji: String) {
-        // Lookup phrase from data file if not explicitly provided
-        val phrase = CommunicationData.getPhraseForEmoji(emoji)
-        triggerPhrase(emoji, phrase)
-    }
-
     private fun triggerPhrase(emoji: String, phrase: String) {
-        broadcastLog("TRIGGERING: $phrase")
+        if (phrase.isEmpty()) return
 
         val intent = Intent(this, OverlayService::class.java)
         intent.putExtra("emotion", emoji)
         intent.putExtra("phrase", phrase)
         intent.putExtra("duration", 4000L)
-
-        // Required because we are starting from a background service context
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        startForegroundService(intent)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 }

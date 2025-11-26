@@ -33,11 +33,11 @@ data class VocabularyRoot(
     val where: List<CommItem> = emptyList(),
     val what: List<CommItem> = emptyList(),
     val needs: List<CommItem> = emptyList(),
-    @SerialName("when") val time: List<CommItem> = emptyList(),
+    @SerialName("when") val time: List<CommItem> = emptyList(), // Key fix for JSON "when"
     val linkers: List<CommItem> = emptyList(),
     val descriptions: List<CommItem> = emptyList(),
     val questions: List<CommItem> = emptyList(),
-    val grammar: List<CommItem> = emptyList() // <--- THIS MUST EXIST
+    val grammar: List<CommItem> = emptyList()
 ) {
     fun getAllItemsFlat(): List<CommItem> {
         val all = mutableListOf<CommItem>()
@@ -62,33 +62,17 @@ data class VocabularyRoot(
 
 object CommunicationData {
     private var cache: VocabularyRoot? = null
-
-    // Lenient parsing helps avoid crashes on minor JSON errors
-    private val jsonConfig = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
+    private val jsonConfig = Json { ignoreUnknownKeys = true; isLenient = true }
 
     fun load(context: Context): VocabularyRoot {
         if (cache != null) return cache!!
-
         return try {
-            val jsonString = context.assets.open("communication.json")
-                .bufferedReader()
-                .use { it.readText() }
-
-            val data = jsonConfig.decodeFromString<VocabularyRoot>(jsonString)
-
-            // DEBUG LOG: Check if data actually loaded
-            Log.d("BesuData", "Loaded ${data.grammar.size} grammar items")
-            Log.d("BesuData", "Loaded ${data.what.size} 'what' items")
-
-            cache = data
-            data
+            val jsonString = context.assets.open("communication.json").bufferedReader().use { it.readText() }
+            cache = jsonConfig.decodeFromString<VocabularyRoot>(jsonString)
+            cache!!
         } catch (e: Exception) {
-            // LOG THE ERROR so you can see it in Logcat!
-            Log.e("BesuData", "CRITICAL: Failed to parse JSON", e)
-            VocabularyRoot() // Returns empty lists, causing your blank bars
+            Log.e("BesuData", "Error loading JSON", e)
+            VocabularyRoot()
         }
     }
 
