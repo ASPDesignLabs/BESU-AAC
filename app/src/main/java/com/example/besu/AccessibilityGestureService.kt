@@ -1,65 +1,78 @@
 package com.example.besu
 
+import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
-import android.accessibilityservice.GestureDescription
-import android.content.Context
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Intent
-import android.os.SystemClock
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 
 class AccessibilityGestureService : AccessibilityService() {
-    private var tapCount = 0
-    private var lastTapTime = 0L
-    private val tapTimeout = 500L // Max time between taps (ms)
-    private val requiredTaps = 3
+
+    private var mAbilityButtonController: AccessibilityButtonController? = null
+    private var mAccessibilityButtonCallback: AccessibilityButtonController.AccessibilityButtonCallback? = null
+
+    companion object {
+        private const val TAG = "BesuA11y"
+    }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        // Service is ready
+
+        // 1. Get the Controller
+        mAbilityButtonController = accessibilityButtonController
+
+        // 2. Request the Flag via Code (Double check manifest matches, but this enforces it)
+        val info = serviceInfo ?: AccessibilityServiceInfo()
+        info.flags = info.flags or AccessibilityServiceInfo.FLAG_REQUEST_ACCESSIBILITY_BUTTON
+        serviceInfo = info
+
+        // 3. Define the Callback
+        mAccessibilityButtonCallback = object : AccessibilityButtonController.AccessibilityButtonCallback() {
+            override fun onClicked(controller: AccessibilityButtonController) {
+                Log.d(TAG, "Accessibility button pressed! Launching Menu...")
+                launchRadialMenu()
+            }
+
+            override fun onAvailabilityChanged(controller: AccessibilityButtonController, available: Boolean) {
+                Log.d(TAG, "Button availability: $available")
+            }
+        }
+
+        // 4. Register the Callback
+        mAccessibilityButtonCallback?.let {
+            mAbilityButtonController?.registerAccessibilityButtonCallback(it, Handler(Looper.getMainLooper()))
+        }
+
+        Log.d(TAG, "Service Connected & Button Callback Registered")
+    }
+
+    private fun launchRadialMenu() {
+        val intent = Intent(this, RadialMenuService::class.java)
+        // Ensure we use the correct start command based on Android version
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // We'll detect taps through a different mechanism
-        // This is required but we won't use it for tap detection
+        // Not used, but required
     }
 
     override fun onInterrupt() {
-        // Required override
+        Log.d(TAG, "Service Interrupted")
     }
 
-    // Detect taps globally
-    override fun onGesture(gestureId: Int): Boolean {
-        // Note: We need to use a workaround for tap detection
-        // AccessibilityService doesn't directly expose tap events
-        return super.onGesture(gestureId)
-    }
-
-    // Alternative: Monitor touch events through window changes
-    private fun detectTap() {
-        val currentTime = SystemClock.uptimeMillis()
-
-        if (currentTime - lastTapTime <= tapTimeout) {
-            tapCount++
-        } else {
-            tapCount = 1
+    override fun onDestroy() {
+        // Unregister to prevent leaks
+        mAccessibilityButtonCallback?.let {
+            mAbilityButtonController?.unregisterAccessibilityButtonCallback(it)
         }
-
-        lastTapTime = currentTime
-
-        if (tapCount >= requiredTaps) {
-            tapCount = 0
-            triggerOverlay()
-        }
-    }
-
-    private fun triggerOverlay() {
-        val prefs = getSharedPreferences("gestures", Context.MODE_PRIVATE)
-        val emotion = prefs.getString("triple_tap", "😊") ?: "😊"
-
-        val intent = Intent(this, OverlayService::class.java)
-        intent.putExtra("emotion", emotion)
-        intent.putExtra("duration", 5000L) // 5 seconds
-        startService(intent)
+        super.onDestroy()
     }
 }

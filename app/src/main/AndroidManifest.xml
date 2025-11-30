@@ -35,7 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".SensorDebugActivity" />
         <!-- 2. Setup / Permission Wizard -->
         <activity
             android:name=".SetupActivity"
@@ -47,13 +47,6 @@
             android:name=".WatchEditorActivity"
             android:exported="false"
             android:label="Watch Editor"
-            android:theme="@style/Theme.Besu" />
-
-        <!-- 4. RL Training Dashboard -->
-        <activity
-            android:name=".TrainingDashboardActivity"
-            android:exported="false"
-            android:label="Motion Tuner"
             android:theme="@style/Theme.Besu" />
 
         <!-- 5. Overlay Service (TTS & Visuals) -->
@@ -69,7 +62,12 @@
         <!-- 6. Radial Menu Service (Input) -->
         <service
             android:name=".RadialMenuService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="accessibility_overlay" />
+        </service>
 
         <!-- 7. Wear Listener (Sync & Commands) -->
         <service

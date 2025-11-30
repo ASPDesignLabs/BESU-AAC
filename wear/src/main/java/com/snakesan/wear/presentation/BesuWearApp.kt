@@ -1,6 +1,5 @@
 package com.example.besu.wear
 
-import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -12,34 +11,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.*
 
-// RENAMED FUNCTION (File name is still BesuWearApp.kt)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BesuWatchFace(
     isMotionEnabled: Boolean,
-    activeProfile: MotionProfileType, // NEW
+    isConversationMode: Boolean,
     customConfig: WatchConfig,
+    sensorState: SensorUiState,
     onToggleMotion: (Boolean) -> Unit,
-    onSwitchProfile: () -> Unit,      // NEW
+    onDoubleTap: () -> Unit,
+    onToggleDebug: () -> Unit,
     onSendCommand: (String) -> Unit
 ) {
     // PAGE ORDER:
     // 0: Controls
     // 1: Native Gestures
     // 2..N: Custom Pages
-    // Last: Suggestions (Most Used)
+    // N+1: Suggestions
+    // N+2: Debug Face
 
     val staticBeforeCount = 2
     val customPageCount = customConfig.pages.size
-    val totalPageCount = staticBeforeCount + customPageCount + 1
+    val suggestionPage = 1
+    val debugPage = 1
+    val totalPageCount = staticBeforeCount + customPageCount + suggestionPage + debugPage
 
     val pagerState = rememberPagerState(pageCount = { totalPageCount })
     var subMenuCommand by remember { mutableStateOf<WearCommand?>(null) }
-    val context = LocalContext.current
 
     val pageIndicatorState = remember {
         object : PageIndicatorState {
@@ -68,12 +70,10 @@ fun BesuWatchFace(
                     // 0: CONTROLS
                     page == 0 -> ControlPage(
                         isEnabled = isMotionEnabled,
-                        profileType = activeProfile,
+                        isConversation = isConversationMode,
                         onToggle = { enabled -> onToggleMotion(enabled) },
-                        onDoubleTap = { if (isMotionEnabled) onSwitchProfile() },
-                        onOpenSettings = {
-                            context.startActivity(Intent(context, TrainingActivity::class.java))
-                        }
+                        onDoubleTap = onDoubleTap,
+                        onLongPressToggle = { onToggleDebug() }
                     )
 
                     // 1: NATIVE GESTURES
@@ -96,8 +96,8 @@ fun BesuWatchFace(
                         }
                     }
 
-                    // LAST PAGE: SUGGESTIONS
-                    else -> {
+                    // SUGGESTIONS
+                    page == (totalPageCount - 2) -> {
                         val slots = if (customConfig.topItems.isNotEmpty()) {
                             customConfig.topItems
                         } else {
@@ -110,6 +110,11 @@ fun BesuWatchFace(
                             Text("Most Used", style = MaterialTheme.typography.caption2, color = Color.Gray)
                             GridPageDynamic(slots = slots, onSend = onSendCommand)
                         }
+                    }
+
+                    // DEBUG PAGE
+                    page == (totalPageCount - 1) -> {
+                        DebugSensorPage(sensorState)
                     }
                 }
             }
@@ -128,15 +133,49 @@ private fun getDefaultTopItems(): List<WatchSlot> {
     )
 }
 
+@Composable
+fun DebugSensorPage(state: SensorUiState) {
+    Column(
+        modifier = Modifier.fillMaxSize().background(Color.Black),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("PHYSICS DEBUG", style = MaterialTheme.typography.caption1, color = Color.Green)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(state.pose, style = MaterialTheme.typography.title2, color = Color.Yellow)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("ACCEL", style = MaterialTheme.typography.caption3, color = Color.LightGray)
+                Text("X: ${"%.1f".format(state.ax)}", fontSize = 10.sp, color = Color.Red)
+                Text("Y: ${"%.1f".format(state.ay)}", fontSize = 10.sp, color = Color.Green)
+                Text("Z: ${"%.1f".format(state.az)}", fontSize = 10.sp, color = Color.Blue)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("GYRO", style = MaterialTheme.typography.caption3, color = Color.LightGray)
+                Text("X: ${"%.1f".format(state.gx)}", fontSize = 10.sp, color = Color.Red)
+                Text("Y: ${"%.1f".format(state.gy)}", fontSize = 10.sp, color = Color.Green)
+                Text("Z: ${"%.1f".format(state.gz)}", fontSize = 10.sp, color = Color.Blue)
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ControlPage(
     isEnabled: Boolean,
-    profileType: MotionProfileType,
+    isConversation: Boolean,
     onToggle: (Boolean) -> Unit,
     onDoubleTap: () -> Unit,
-    onOpenSettings: () -> Unit
+    onLongPressToggle: () -> Unit
 ) {
+    // Determine Color
+    val btnColor = if (!isEnabled) Color.DarkGray
+    else if (isConversation) Color(0xFF6200EA) // Deep Purple for Convo
+    else Color(0xFF1B5E20) // Green for Standard
+
     Box(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)
     ) {
@@ -147,17 +186,15 @@ fun ControlPage(
             Text("Besu AI", style = MaterialTheme.typography.title2)
             Spacer(modifier = Modifier.height(8.dp))
 
-            // CUSTOM TOGGLE BUTTON WITH DOUBLE TAP
+            // MAIN TOGGLE BUTTON
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(
-                        color = if (isEnabled) Color(0xFF1B5E20) else Color.DarkGray,
-                        shape = CircleShape
-                    )
+                    .background(color = btnColor, shape = CircleShape)
                     .combinedClickable(
                         onClick = { onToggle(!isEnabled) },
-                        onDoubleClick = onDoubleTap
+                        onDoubleClick = { onDoubleTap() },
+                        onLongClick = { onLongPressToggle() }
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -167,52 +204,18 @@ fun ControlPage(
                         style = MaterialTheme.typography.title1,
                         color = Color.White
                     )
-                    if (isEnabled) {
-                        Text(
-                            text = if (profileType == MotionProfileType.STANDARD) "STD" else "CUST",
-                            style = MaterialTheme.typography.caption2,
-                            color = Color(0xFF81C784)
-                        )
+                    if (isEnabled && isConversation) {
+                        Text("CHAIN", style = MaterialTheme.typography.caption3, color = Color.Cyan)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            if (isEnabled) {
-                Text(
-                    if (profileType == MotionProfileType.STANDARD) "Physics Engine" else "Custom Trained",
-                    style = MaterialTheme.typography.caption1,
-                    color = if (profileType == MotionProfileType.CUSTOM) Color.Cyan else Color.Gray
-                )
-            } else {
-                Text("Touch Only", style = MaterialTheme.typography.caption1, color = Color.Gray)
-            }
-        }
-
-        // Pull Up Drawer
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CompactChip(
-                onClick = onOpenSettings,
-                label = {
-                    Text(
-                        "TRAIN GESTURES",
-                        style = MaterialTheme.typography.caption2,
-                        color = Color.Black
-                    )
-                },
-                icon = {
-                    Text("⚙️", style = MaterialTheme.typography.body2)
-                },
-                colors = ChipDefaults.secondaryChipColors(backgroundColor = Color(0xFFEEEEEE))
+            Text(
+                if (isConversation) "Conversation Mode" else "Single Command",
+                style = MaterialTheme.typography.caption1,
+                color = Color.Gray
             )
-            Spacer(modifier = Modifier.height(4.dp))
         }
     }
 }

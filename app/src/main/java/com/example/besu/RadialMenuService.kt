@@ -1,5 +1,8 @@
 package com.example.besu
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -16,6 +19,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.app.NotificationCompat
 import androidx.core.view.setPadding
 
 class RadialMenuService : Service() {
@@ -42,6 +46,12 @@ class RadialMenuService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // --- FIX: START FOREGROUND IMMEDIATELY ---
+        // This prevents the OS from killing the service when launched via Accessibility Button
+        createNotificationChannel()
+        startForeground(420, createNotification())
+        // -----------------------------------------
+
         isPickerMode = intent?.getBooleanExtra("IS_PICKER_MODE", false) ?: false
 
         // Initialize the Brain
@@ -128,7 +138,10 @@ class RadialMenuService : Service() {
 
         view.setOnClickListener {
             if (expansionScroll?.visibility == View.VISIBLE) closeExpansion()
-            else { removeRadialMenu(); stopSelf() }
+            else {
+                removeRadialMenu()
+                stopSelf() // Kills the service cleanly
+            }
         }
     }
 
@@ -171,7 +184,10 @@ class RadialMenuService : Service() {
 
             triggerAction(item.emoji, item.phrase)
             val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            if (!prefs.getBoolean("menu_sticky", false)) removeRadialMenu()
+            if (!prefs.getBoolean("menu_sticky", false)) {
+                removeRadialMenu()
+                stopSelf() // Close service after action
+            }
         }
     }
 
@@ -388,8 +404,41 @@ class RadialMenuService : Service() {
     }
 
     private fun removeRadialMenu() {
-        radialMenuView?.let { if (it.isAttachedToWindow) windowManager?.removeView(it); radialMenuView = null }
+        radialMenuView?.let {
+            if (it.isAttachedToWindow) windowManager?.removeView(it)
+            radialMenuView = null
+        }
+        // --- FIX: STOP FOREGROUND ---
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            stopForeground(true)
+        }
     }
 
-    override fun onDestroy() { removeRadialMenu(); super.onDestroy() }
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "besu_menu_channel",
+                "Besu Menu",
+                NotificationManager.IMPORTANCE_MIN
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotification(): Notification {
+        return NotificationCompat.Builder(this, "besu_menu_channel")
+            .setContentTitle("Besu Menu Active")
+            .setContentText("Tap outside to close")
+            .setSmallIcon(android.R.drawable.ic_dialog_dialer)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .build()
+    }
+
+    override fun onDestroy() {
+        removeRadialMenu()
+        super.onDestroy()
+    }
 }

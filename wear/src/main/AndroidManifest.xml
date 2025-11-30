@@ -23,13 +23,6 @@
             </intent-filter>
         </activity>
 
-        <!-- 2. Training / Calibration Activity (Launched via Intent) -->
-        <activity
-            android:name="com.example.besu.wear.TrainingActivity"
-            android:exported="false"
-            android:label="Gesture Trainer"
-            android:theme="@android:style/Theme.DeviceDefault" />
-
         <!-- 3. Background Listener (Sync & Triggers) -->
         <service
             android:name="com.example.besu.wear.WearConfigListenerService"

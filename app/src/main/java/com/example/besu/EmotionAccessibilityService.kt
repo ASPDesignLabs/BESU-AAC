@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -25,18 +26,8 @@ class EmotionAccessibilityService : AccessibilityService() {
 
         mAbilityButtonController = accessibilityButtonController
 
-        // Check if the accessibility button is available
-        if (mAbilityButtonController?.isAccessibilityButtonAvailable == false) {
-            Log.d(TAG, "Accessibility button not available")
-            // You might want to return here or handle it differently
-        }
-
-        val info = serviceInfo ?: AccessibilityServiceInfo() // Use existing info if available
+        val info = serviceInfo ?: AccessibilityServiceInfo()
         info.flags = info.flags or AccessibilityServiceInfo.FLAG_REQUEST_ACCESSIBILITY_BUTTON
-        // You may not need to set these again unless you are changing them
-        // info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED
-        // info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-
         serviceInfo = info
         Log.d(TAG, "Accessibility service connected")
 
@@ -58,8 +49,6 @@ class EmotionAccessibilityService : AccessibilityService() {
             }
 
         mAccessibilityButtonCallback?.let {
-            // FIX: Provide a Handler.
-            // Callbacks will run on the main thread.
             mAbilityButtonController?.registerAccessibilityButtonCallback(
                 it,
                 Handler(Looper.getMainLooper())
@@ -68,7 +57,7 @@ class EmotionAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // We don't need to handle regular accessibility events
+        // Not used
     }
 
     override fun onInterrupt() {
@@ -77,7 +66,12 @@ class EmotionAccessibilityService : AccessibilityService() {
 
     private fun showRadialMenu() {
         val intent = Intent(this, RadialMenuService::class.java)
-        startService(intent)
+        // CRITICAL FIX FOR ANDROID 8+: Start as Foreground Service
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     override fun onDestroy() {

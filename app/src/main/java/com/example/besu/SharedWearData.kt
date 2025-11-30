@@ -2,17 +2,27 @@ package com.example.besu.wear
 
 import kotlinx.serialization.Serializable
 
-// These duplicate the definitions in the :wear module
-// so the Phone knows how to structure the JSON payload.
-
-enum class TrainingMode {
-    GESTURE,
-    NOISE,
-    GROSS_MOTOR
-}
+// --- CONFIGURATION DATA (KEPT) ---
 
 @Serializable
-data class TrainingRequest(
-    val mode: TrainingMode,
-    val label: String
+data class WatchConfig(
+    val topItems: List<WatchSlot> = emptyList(),
+    val pages: List<WatchPage> = emptyList()
 )
+
+@Serializable
+data class WatchPage(
+    val id: String,
+    val title: String,
+    val slots: List<WatchSlot>
+)
+
+@Serializable
+data class WatchSlot(
+    val label: String,
+    val emoji: String,
+    val path: String,
+    val type: String = "COMMAND"
+)
+
+// --- DELETED: TrainingMode, MotionProfileType, TrainingRequest, MotionSample, etc. ---

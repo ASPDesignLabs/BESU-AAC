@@ -1,9 +1,7 @@
 package com.example.besu
 
-import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
@@ -19,46 +17,43 @@ class WearListenerService : WearableListenerService() {
 
         val path = messageEvent.path
 
-        // 1. Debug Channel
-        if (path == "/debug/sensor") {
-            val debugMessage = messageEvent.data?.let { String(it, Charsets.UTF_8) } ?: "No data"
-            broadcastLog(debugMessage)
+        // 1. FILTER: Ignore System channels
+        if (path.startsWith("/besu/") || path.startsWith("/debug/")) {
             return
         }
 
-        broadcastLog("RX CMD: $path")
         Log.d(TAG, "Received command: $path")
 
-        // 2. Identify the content and the ID for the Brain
-        val (emoji, phrase, id) = parseMessage(path, messageEvent.data)
+        // 2. Identify the content
+        val result = parseMessage(path)
 
-        // 3. Trigger Action
-        triggerPhrase(emoji, phrase)
+        if (result != null) {
+            val (emoji, phrase, id) = result
 
-        // 4. Teach the Brain
-        // If we identified a valid ID, tell the engine we used it.
-        if (id != null) {
-            // We run this on the main thread or a background thread?
-            // RecommendationEngine writes to disk, so let's be safe,
-            // but for a simple service this is usually fine on the listener thread
-            // as it's quick.
-            try {
-                RecommendationEngine.learnSentence(listOf(id))
-                RecommendationEngine.persist(this)
-                Log.d(TAG, "Brain updated with ID: $id")
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to update brain", e)
+            if (id != null) {
+                // INTELLIGENT MODE: Buffer ID for chaining
+                PredictionEngine.postCommand(id, phrase) { finalPhrase ->
+                    triggerPhrase(emoji, finalPhrase)
+                }
+            } else {
+                // Direct Text / Unknown ID -> Speak Immediately
+                triggerPhrase(emoji, phrase)
             }
         }
     }
 
-    private fun parseMessage(path: String, data: ByteArray?): Triple<String, String, String?> {
-        // Returns Triple(Emoji, Phrase, ID?)
-
-        // A. Handle System Gestures (Mapped to specific IDs in your JSON)
+    private fun parseMessage(path: String): Triple<String, String, String?>? {
         if (path.startsWith("/gesture/")) {
             return when (path) {
-                // Social
+                // --- SOCIAL / HANDSHAKE ---
+                "/gesture/nice" -> Triple("🤝", "Nice to meet you.", "nice")
+                "/gesture/meet_pleasure" -> Triple("✨", "It was a pleasure meeting you.", "pleasure_meet")
+                "/gesture/meet_very_nice" -> Triple("👋", "Very nice to see you.", "see_you")
+                "/gesture/sorry_wait" -> Triple("😅", "Sorry I kept you waiting.", "sorry_wait")
+                "/gesture/thanks" -> Triple("🙏", "Thank you.", "thanks")
+                "/gesture/same" -> Triple("✨", "Same here. Me too.", "same")
+
+                // --- IDENTITY ---
                 "/gesture/name" -> {
                     val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
                     val name = prefs.getString("user_name", "")
@@ -67,44 +62,27 @@ class WearListenerService : WearableListenerService() {
                 }
                 "/gesture/ask_name" -> Triple("❓", "What is your name?", "question_name")
 
-                // Refusal / Negation
-                "/gesture/no" -> Triple("🚫", "No.", "no")
-                "/gesture/hate" -> Triple("😠", "I hate this. Go away.", "hate")
-
-                // Greeting
-                "/gesture/wave" -> Triple("👋", "Hello.", "hello")
-                "/gesture/goodbye" -> Triple("👋", "Goodbye. See you later.", "goodbye")
-
-                // Command
+                // --- UTILITY / STOP LADDER ---
                 "/gesture/stop" -> Triple("✋", "Stop.", "stop")
                 "/gesture/wait" -> Triple("⏳", "Please wait a moment.", "wait")
+                "/gesture/break" -> Triple("⏸️", "I need a break.", "need_break")
+                "/gesture/leave_alone" -> Triple("🛑", "Please leave me alone.", "leave_alone")
 
-                // Affirmation
-                "/gesture/thumbsup" -> Triple("👍", "Good.", "yes") // Mapping 'good' to 'yes' or 'good' ID
-                "/gesture/thumbsdown" -> Triple("👎", "That is bad.", "bad")
-
-                // Connection
-                "/gesture/nice" -> Triple("🤝", "Nice to meet you.", "nice")
-                "/gesture/same" -> Triple("✨", "Same here. Me too.", "same")
+                // --- GREETING ---
+                "/gesture/wave" -> Triple("👋", "Hello.", "hello")
+                "/gesture/thumbsup" -> Triple("👍", "Good.", "yes")
 
                 else -> Triple("❓", "Unknown Gesture", null)
             }
         }
 
-        // B. Handle Raw Text / Custom Sentences sent from Watch Grid
-        // The path itself is the phrase usually, or we can send ID in the data payload if we get fancy later.
-        // For now, if the watch sends a custom phrase, we don't have a strict ID,
-        // unless we want to do a reverse lookup. We will return null for ID to be safe.
-        else {
-            return Triple("🗣️", path, null)
+        // Handle Direct Text
+        if (path.startsWith("/")) {
+            val cleanText = path.substring(1)
+            return Triple("🗣️", cleanText, null)
         }
-    }
 
-    private fun broadcastLog(msg: String) {
-        val intent = Intent("BESU_WEAR_LOG")
-        intent.setPackage(packageName)
-        intent.putExtra("log_message", msg)
-        sendBroadcast(intent)
+        return null
     }
 
     private fun triggerPhrase(emoji: String, phrase: String) {

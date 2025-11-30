@@ -170,8 +170,13 @@ fun BesuDashboard(
             showNameDialog = true
         }
 
-        SettingCard(title = "Motion Tuning", value = "Train & Filter Noise", icon = "🧠") {
-            context.startActivity(Intent(context, TrainingDashboardActivity::class.java))
+        DashboardCard(
+            title = "Sensor Graph",
+            icon = "📈",
+            desc = "Live Physics Debugger",
+            color = Color(0xFFE91E63)
+        ) {
+            context.startActivity(Intent(context, SensorDebugActivity::class.java))
         }
 
         // 2. TTS Selector
